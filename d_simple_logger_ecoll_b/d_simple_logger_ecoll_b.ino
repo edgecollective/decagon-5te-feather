@@ -107,7 +107,7 @@ char decToChar(byte i){
 
 void printBufferToScreen(){
   String buffer = "";
-  mySDI12.read(); // consume address
+  //mySDI12.read(); // consume address
   while(mySDI12.available()){
     char c = mySDI12.read();
     if(c == '+'){
@@ -118,7 +118,9 @@ void printBufferToScreen(){
     }
     delay(50);
   }
- Serial.print(buffer);
+  Serial.println("Buffer:");
+ Serial.println(buffer);
+ Serial.println();
 }
 
 // gets identification information from a sensor, and prints it to the serial port
@@ -156,14 +158,15 @@ void takeMeasurement(char i){
   }
   mySDI12.clearBuffer();
 
-/*
   // find out how long we have to wait (in seconds).
   uint8_t wait = 0;
   wait = sdiResponse.substring(1,4).toInt();
 
   // Set up the number of results to expect
-  // int numMeasurements =  sdiResponse.substring(4,5).toInt();
+   int numMeasurements =  sdiResponse.substring(4,5).toInt();
 
+Serial.println(numMeasurements);
+/*
   unsigned long timerStart = millis();
   while((millis() - timerStart) < (1000 * wait)){
     if(mySDI12.available())  // sensor can interrupt us to let us know it is done early
@@ -185,9 +188,14 @@ void takeMeasurement(char i){
   command += "D0!"; // SDI-12 command to get data [address][D][dataOption][!]
   mySDI12.sendCommand(command);
   while(!mySDI12.available()>1); // wait for acknowlegement
+ 
   delay(300); // let the data transfer
+
+  
   printBufferToScreen();
   mySDI12.clearBuffer();
+
+  
 }
 
 void DMeasurement(char i){   
@@ -200,22 +208,47 @@ void DMeasurement(char i){
   command += i;
   command += "M!"; // SDI-12 measurement command format  [address]['M'][!]
   mySDI12.sendCommand(command); 
-  delay(500); // wait a while
+  delay(2000); // wait a while
   mySDI12.flush(); // we don't care about what it sends back
-
+  mySDI12.clearBuffer();
+  
   command = "";
   command += i;
   command += "D0!"; // SDI-12 command to get data [address][D][dataOption][!]
   mySDI12.sendCommand(command);
-  delay(500);
+
+  while(!mySDI12.available()>1); // wait for acknowlegement
+  delay(300); // let the data transfer
+  
+  //printBufferToScreen();
+  //mySDI12.clearBuffer();
+
      if(mySDI12.available() > 0){
-        float junk = mySDI12.parseFloat();
-        CTDdepth = mySDI12.parseInt();
-        CTDtemp = mySDI12.parseFloat();
-        CTDcond = mySDI12.parseInt();
+        int add = mySDI12.parseInt();
+        int va = mySDI12.parseInt();
+        float vb = mySDI12.parseFloat();
+        float vc = mySDI12.parseFloat();
+
+       // Serial.print("address=");
+        Serial.print(add);
+        Serial.print(", ");
+        Serial.print(va);
+        Serial.print(", ");
+        Serial.print(vb);
+        Serial.print(", ");
+        Serial.print(vc);
+        Serial.println();
+        //Serial.println(add);
+       // Serial.println(va);
+        //Serial.println(vb);
+       // Serial.println(vc);
      }
 
+
   mySDI12.flush(); 
+  mySDI12.clearBuffer();
+
+  
  }     
 
  
@@ -296,9 +329,9 @@ void setup(){
 
   for(byte i = '0'; i <= '9'; i++) if(checkActive(i)) {numSensors++; setTaken(i);}   // scan address space 0-9
 
-  for(byte i = 'a'; i <= 'z'; i++) if(checkActive(i)) {numSensors++; setTaken(i);}   // scan address space a-z
+  //for(byte i = 'a'; i <= 'z'; i++) if(checkActive(i)) {numSensors++; setTaken(i);}   // scan address space a-z
 
-  for(byte i = 'A'; i <= 'Z'; i++) if(checkActive(i)) {numSensors++; setTaken(i);}   // scan address space A-Z
+  //for(byte i = 'A'; i <= 'Z'; i++) if(checkActive(i)) {numSensors++; setTaken(i);}   // scan address space A-Z
 
   /*
       See if there are any active sensors.
@@ -321,8 +354,12 @@ void setup(){
     while(true);
   } // stop here
 
-  Serial.println();
-  Serial.println("Time Elapsed (s), Sensor Address and ID, Measurement 1, Measurement 2, ... etc.");
+  //Serial.println();
+  //Serial.println("Time Elapsed (s), Sensor Address and ID, Measurement 1, Measurement 2, ... etc.");
+
+  Serial.println("-------------------------------------------------------------------------------");
+  
+       Serial.println("address,va,vb,vc");
   Serial.println("-------------------------------------------------------------------------------");
 }
 
@@ -330,21 +367,25 @@ void loop(){
 
   // scan address space 0-9
   for(char i = '0'; i <= '9'; i++) if(isTaken(i)){
-    Serial.print(millis()/1000);
-    Serial.print(",\t");
-    printInfo(i);
-    Serial.print(",\t");
-    takeMeasurement(i);
-    Serial.println();
+    //Serial.print(millis()/1000);
+    //Serial.print(",\t");
+   // printInfo(i);
+   // Serial.print(",\t");
+   
+    //takeMeasurement(i);
+    DMeasurement(i);
+    
+    //Serial.println();
   }
 
+/*
   // scan address space a-z
   for(char i = 'a'; i <= 'z'; i++) if(isTaken(i)){
     Serial.print(millis()/1000);
     Serial.print(",\t");
     printInfo(i);
     Serial.print(",\t");
-    takeMeasurement(i);
+     takeMeasurement(i);
     Serial.println();
   }
 
@@ -354,10 +395,11 @@ void loop(){
     Serial.print(",\t");
     printInfo(i);
     Serial.print(",\t");
-    takeMeasurement(i);
+     takeMeasurement(i);
     Serial.println();
   };
-
+*/
   delay(10000); // wait ten seconds between measurement attempts.
 
+Serial.println("------------------------");
 }
