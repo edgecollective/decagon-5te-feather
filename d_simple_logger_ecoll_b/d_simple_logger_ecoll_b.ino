@@ -329,9 +329,9 @@ void setup(){
 
   for(byte i = '0'; i <= '9'; i++) if(checkActive(i)) {numSensors++; setTaken(i);}   // scan address space 0-9
 
-  //for(byte i = 'a'; i <= 'z'; i++) if(checkActive(i)) {numSensors++; setTaken(i);}   // scan address space a-z
+ for(byte i = 'a'; i <= 'z'; i++) if(checkActive(i)) {numSensors++; setTaken(i);}   // scan address space a-z
 
-  //for(byte i = 'A'; i <= 'Z'; i++) if(checkActive(i)) {numSensors++; setTaken(i);}   // scan address space A-Z
+  for(byte i = 'A'; i <= 'Z'; i++) if(checkActive(i)) {numSensors++; setTaken(i);}   // scan address space A-Z
 
   /*
       See if there are any active sensors.
@@ -378,14 +378,16 @@ void loop(){
     //Serial.println();
   }
 
-/*
+
   // scan address space a-z
   for(char i = 'a'; i <= 'z'; i++) if(isTaken(i)){
     Serial.print(millis()/1000);
     Serial.print(",\t");
     printInfo(i);
     Serial.print(",\t");
-     takeMeasurement(i);
+     //takeMeasurement(i);
+         DMeasurement(i);
+
     Serial.println();
   }
 
@@ -395,10 +397,12 @@ void loop(){
     Serial.print(",\t");
     printInfo(i);
     Serial.print(",\t");
-     takeMeasurement(i);
+     //takeMeasurement(i);
+         DMeasurement(i);
+
     Serial.println();
   };
-*/
+
   delay(10000); // wait ten seconds between measurement attempts.
 
 Serial.println("------------------------");
